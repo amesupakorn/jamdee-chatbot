@@ -1,0 +1,14 @@
+myvenv/
+venv/
+
+google-credentials.json
+
+__pycache__/
+*.py[cod]
+
+*.log
+
+.env
+
+.DS_Store
+Thumbs.db
