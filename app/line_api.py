@@ -3,6 +3,7 @@ import os
 import json
 from dotenv import load_dotenv
 from app.quiz import get_unanswered_question, record_question_history
+from app.scores import get_user_score, get_user_score_sum
 
 load_dotenv()
 LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
@@ -106,14 +107,14 @@ def send_quiz(user_id):
                     "contents": [
                         {
                             "type": "text",
-                            "text": "นั่งไว้",
+                            "text": "เย้! ตอบครบแล้ว🎉",
                             "align": "center",
                             "weight": "bold",
-                            "color": "#FFFFFF",
-                            "size": "lg"
+                            "color": "#FF69B4",
+                            "size": "xl"
                         }
                     ],
-                    "backgroundColor": "#FF69B4",
+                    "backgroundColor": "#DDF4FF",
                     "paddingAll": "md"
                 },
                 "hero": {
@@ -121,7 +122,11 @@ def send_quiz(user_id):
                     "url": picture_url,
                     "size": "full",
                     "aspectRatio": "1:1",
-                    "aspectMode": "cover"
+                    "aspectMode": "cover",
+                    "action": {
+                        "type": "uri",
+                        "uri": "https://linecorp.com"  # Replace with your website URL if needed
+                    }
                 },
                 "body": {
                     "type": "box",
@@ -132,24 +137,79 @@ def send_quiz(user_id):
                             "text": display_name,
                             "align": "center",
                             "weight": "bold",
-                            "size": "md",
-                            "margin": "md"
+                            "size": "lg",
+                            "margin": "md",
+                            "color": "#FFB6C1"
+                        },
+                        {
+                            "type": "separator",
+                            "margin": "lg",
+                            "color": "#FFB6C1"
                         },
                         {
                             "type": "text",
-                            "text": "คำถามหมดแล้วสำหรับวันนี้ กรุณากลับมาใหม่ในวันพรุ่งนี้นะค้าบ😊",
+                            "text": "คำถามหมดแล้วสำหรับวันนี้",
+                            "wrap": True,
+                            "align": "center",
+                            "margin": "lg",
+                            "size": "md",
+                            "weight": "bold"
+                        },
+                        {
+                            "type": "text",
+                            "text": "กรุณากลับมาใหม่ในวันพรุ่งนี้นะค้าบ 😊",
                             "wrap": True,
                             "align": "center",
                             "margin": "md",
                             "size": "sm",
                             "color": "#444444"
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "ขอบคุณที่ร่วมสนุก!",
+                                    "size": "sm",
+                                    "color": "#FFB6C1",
+                                    "align": "center",
+                                    "margin": "md",
+                                    "style": "italic"
+                                }
+                            ],
+                            "margin": "lg"
+                        }
+                    ],
+                    "paddingAll": "xl",
+                    "backgroundColor": "#FFFFFF"
+                },
+                "footer": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "action": {
+                                "type": "message",
+                                "label": "ดูคะแนนของฉัน",
+                                "text": "ดูคะแนน",
+                            
+                            },
+                            "style": "primary",
+                            "color": "#FFB6C1"
                         }
                     ],
                     "paddingAll": "md"
+                },
+                "styles": {
+                    "body": {
+                        "separator": True
+                    }
                 }
             }
         }
-        
+                
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {LINE_ACCESS_TOKEN}"
@@ -277,3 +337,123 @@ def send_quiz(user_id):
     }
     requests.post("https://api.line.me/v2/bot/message/push", headers=headers, data=json.dumps(data))
     
+
+
+def send_score_card(user_id):
+    profile = get_user_profile(user_id)
+    display_name = profile.get("displayName", "คุณผู้ใช้")
+    picture_url = profile.get("pictureUrl", "https://i.imgur.com/UePbdph.png")  # fallback
+    score = get_user_score_sum(user_id)
+
+    flex = {
+        "type": "flex",
+        "altText": "คะแนนของคุณ",
+        "contents": {
+                "type": "bubble",
+                "header": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "🏆 คะแนนสะสม 🏆",
+                            "align": "center",
+                            "weight": "bold",
+                            "color": "#FF69B4",
+                            "size": "xl"
+                        }
+                    ],
+                    "backgroundColor": "#DDF4FF",
+                    "paddingAll": "md"
+                },
+       
+            "hero": {
+                "type": "image",
+                "url": picture_url,
+                "size": "full",
+                "aspectRatio": "1:1",
+                "aspectMode": "cover"
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": f"{display_name}",
+                        "weight": "bold",
+                        "size": "xl",
+                        "align": "center",
+                        "color": "#FF69B4",
+                        "margin": "md"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": f"{score}",
+                                "weight": "bold",
+                                "size": "3xl",
+                                "align": "center",
+                                "color": "#6200EA"
+                            },
+                            {
+                                "type": "text",
+                                "text": "คะแนน",
+                                "weight": "bold",
+                                "size": "lg",
+                                "align": "center",
+                                "color": "#6200EA",
+                                "margin": "xs"
+                            }
+                        ],
+                        "backgroundColor": "#F8F2FF",
+                        "cornerRadius": "lg",
+                        "paddingAll": "lg",
+                        "margin": "lg"
+                    },
+                    {
+                        "type": "text",
+                        "text": "เก่งมากเลย! มาลุ้นต่อกันนะ 🎉",
+                        "align": "center",
+                        "size": "sm",
+                        "color": "#555555",
+                        "margin": "xl",
+                        "weight": "bold"
+                    }
+                ],
+                "paddingAll": "xl",
+                "backgroundColor": "#FFFFFF"
+            },
+            # "footer": {
+            #     "type": "box",
+            #     "layout": "vertical",
+            #     "contents": [
+            #         {
+            #             "type": "button",
+            #             "action": {
+            #                 "type": "message",
+            #                 "label": "เล่นต่อ",
+            #                 "text": "เล่นต่อ"
+            #             },
+            #             "style": "primary",
+            #             "color": "#FF69B4"
+            #         }
+            #     ],
+            #     "paddingAll": "md"
+            # }
+        }
+
+    }
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {LINE_ACCESS_TOKEN}"
+    }
+    data = {
+        "to": user_id,
+        "messages": [flex]
+    }
+    requests.post("https://api.line.me/v2/bot/message/push", headers=headers, data=json.dumps(data))

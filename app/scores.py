@@ -18,6 +18,13 @@ def get_user_score(user_id):
             return i + 2, row  # +2 เพราะหัวตารางนับเป็น row 1
     return None, None
 
+def get_user_score_sum(user_id):
+    rows = sheet.get_all_records()
+    for row in rows:
+        if row.get("userId") == user_id:
+            return int(row.get("score", 0))
+    return 0  # ถ้าไม่เจอ
+
 def update_or_add_user_score(user_id, name, is_correct):
     row_index, existing_row = get_user_score(user_id)
     score = 10 if is_correct else 0
@@ -37,3 +44,4 @@ def reset_user_score(user_id):
         if row.get("userId") == user_id:
             sheet.update_cell(i + 2, 3, 0)  # column 3 คือคะแนน
             break
+

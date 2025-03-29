@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from app.line_api import reply_message, get_user_profile, send_quiz
+from app.line_api import reply_message, get_user_profile, send_quiz, send_score_card
 from app.scores import update_or_add_user_score, reset_user_score
 from app.quiz import get_random_question, record_question_history
 from dotenv import load_dotenv
@@ -25,7 +25,9 @@ async def webhook(request: Request):
                 send_quiz(user_id)
             elif "รีเซต" in text:
                 reset_user_score(user_id)
-                reply_message(user_id, "✅ คุณได้รีเซตคะแนนแล้วครับ ✨")
+                reply_message(user_id, "✅ คุณได้รีเซตคะแนนแล้วครับ ✨")       
+            elif text == "ดูคะแนน":
+                send_score_card(user_id)
             else:
                 reply_message(user_id, "พิมพ์ 'เริ่ม' เพื่อเริ่มทำแบบทดสอบ 🤖")
 
