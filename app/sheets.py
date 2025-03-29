@@ -28,3 +28,20 @@ def update_or_add_user_score(user_id, name, is_correct):
         sheet.update_cell(row_index, 3, new_score)
     else:
         sheet.append_row([user_id, name, score])
+        
+def load_quiz_questions():
+    questions_sheet = client.open_by_key(GOOGLE_SHEET_ID).worksheet("questions")
+    rows = questions_sheet.get_all_records()
+
+    quiz_data = []
+    for row in rows:
+        question = row.get("question")
+        choices = [c.strip() for c in row.get("choices", "").split(",")]
+        answer = row.get("answer")
+        if question and choices and answer:
+            quiz_data.append({
+                "question": question,
+                "choices": choices,
+                "answer": answer
+            })
+    return quiz_data
