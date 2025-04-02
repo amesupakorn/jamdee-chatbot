@@ -28,7 +28,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 reply_message(user_id, "✅ คุณได้รีเซตคะแนนแล้วครับ ✨")       
             elif text == "ดูคะแนน":
                 send_score_card(user_id)
-            elif "เล่นเกมฝึกสมอง" in text:
+            elif "เล่นเกมฝึกสมองง!" in text:
                 send_game_menu(user_id)
             elif "เริ่มเกมคณิตศาสตร์" in text:
                 send_question(user_id, key="math")
@@ -37,7 +37,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             elif "เริ่มเกมทายสุภาษิต" in text:                
                 send_question(user_id, key="proverb")
             else:
-                reply_message(user_id, "พิมพ์ 'เล่นเกมฝึกสมอง' เพื่อหาเกมเล่นกัน 🤖")
+                reply_message(user_id, "พิมพ์ 'เล่นเกมฝึกสมองง!' เพื่อหาเกมเล่นกัน 🤖")
 
         # ✅ ส่วนนี้ทำให้เร็วขึ้นด้วย background task
         elif event["type"] == "postback":

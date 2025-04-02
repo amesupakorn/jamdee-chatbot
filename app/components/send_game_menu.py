@@ -53,7 +53,7 @@ def load_game_menu_from_sheet():
                     },
                     {
                         "type": "text",
-                        "text": f"⭐️ {game['rating']} | ระดับ: {game['level']}",
+                        "text": f"ระดับ: {game['level']}",
                         "size": "xs",
                         "color": "#999999"
                     }
