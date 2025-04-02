@@ -2,10 +2,10 @@ from fastapi import FastAPI, Request, BackgroundTasks
 from dotenv import load_dotenv
 import os, json
 
-from app.line_api import reply_message, get_user_profile, send_quiz, send_math_question, send_score_card, send_game_menu
+from app.line_api import reply_message, get_user_profile, send_match_question, send_math_question, send_score_card, send_game_menu
 from app.scores import update_or_add_user_score, reset_user_score
-from app.quiz import record_question_history
-from app.quizMath import record_math_history
+from app.quiz_match import record_match_history
+from app.quiz_math import record_math_history
 
 load_dotenv()
 app = FastAPI()
@@ -29,12 +29,14 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 send_score_card(user_id)
             elif "เล่นเกมฝึกสมอง" in text:
                 send_game_menu(user_id)
-            elif "เริ่มเกมบวกเลข" in text:
+            elif "เริ่มเกมคณิตศาสตร์" in text:
                 send_math_question(user_id)
-            elif "เริ่ม" in text or "quiz" in text:
-                send_quiz(user_id)
+            elif "เริ่มเกมทายเงาสัตว์" in text:    
+                send_match_question(user_id)
+            elif "เริ่มเกมสุภาษิต" in text:                
+                ""
             else:
-                reply_message(user_id, "พิมพ์ 'เริ่ม' เพื่อเริ่มทำแบบทดสอบ 🤖")
+                reply_message(user_id, "พิมพ์ 'เล่นเกมฝึกสมอง' เพื่อหาเกมเล่นกัน 🤖")
 
         # ✅ ส่วนนี้ทำให้เร็วขึ้นด้วย background task
         elif event["type"] == "postback":
@@ -67,7 +69,7 @@ def handle_postback_event(event):
         if mode == "math":
             record_math_history(user_id, question)
         else:
-            record_question_history(user_id, question)
+            record_match_history(user_id, question)
 
         feedback = (
             f"✅ ถูกต้อง! คุณได้ 10 คะแนน (รวม {score} คะแนน)"
@@ -80,7 +82,7 @@ def handle_postback_event(event):
         if mode == "math":
             send_math_question(user_id)
         else:
-            send_quiz(user_id)
+            send_match_question(user_id)
 
     except Exception as e:
         print(f"⚠️ ERROR handling postback: {e}")
