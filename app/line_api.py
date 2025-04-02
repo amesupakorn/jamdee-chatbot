@@ -13,6 +13,27 @@ load_dotenv()
 LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
 
 
+import requests
+
+def start_loading_animation(user_id, seconds=5):
+    url = "https://api.line.me/v2/bot/chat/loading/start"
+    headers = {
+        "Authorization": f"Bearer {LINE_ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "chatId": user_id,
+        "loadingSeconds": min(seconds, 10) 
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status() 
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error starting loading animation: {e}")
+        return {"error": str(e)}
+
 def reply_message(user_id, message):
     url = "https://api.line.me/v2/bot/message/push"
     headers = {

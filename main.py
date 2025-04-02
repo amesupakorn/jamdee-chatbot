@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request, BackgroundTasks
 from dotenv import load_dotenv
 import os, json
 
-from app.line_api import reply_message, get_user_profile, send_question, send_score_card, send_game_menu
+from app.line_api import reply_message, get_user_profile, send_question, send_score_card, send_game_menu, start_loading_animation
 from app.scores import update_or_add_user_score, reset_user_score
 from app.quiz import get_answered_questions, record_question_history
 
@@ -21,6 +21,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
         # ✅ ส่วนนี้คงไว้ ไม่เปลี่ยน
         if event["type"] == "message":
             text = event["message"]["text"].lower()
+            start_loading_animation(user_id)
+
             if "รีเซต" in text:
                 reset_user_score(user_id)
                 reply_message(user_id, "✅ คุณได้รีเซตคะแนนแล้วครับ ✨")       
@@ -53,7 +55,8 @@ def handle_postback_event(event):
         return
     try:
         processing_users[user_id] = True
-        
+        start_loading_animation(user_id)
+
         profile = get_user_profile(user_id)
         name = profile.get("displayName", "ผู้ใช้")
 
@@ -85,7 +88,7 @@ def handle_postback_event(event):
             record_question_history(user_id, question_id, "proverb")
 
         feedback = (
-            f"✅ ถูกต้อง! คุณได้ 10 คะแนน (รวม {score} คะแนน)"
+            f"✅ ถูกต้อง! คุณได้ 1 คะแนน (รวม {score} คะแนน)"
             if is_correct else
             f"❌ คำตอบที่ถูกคือ: {correct}\nคะแนนคุณคือ {score}"
         )
