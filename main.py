@@ -2,7 +2,8 @@ from fastapi import FastAPI, Request, BackgroundTasks
 from dotenv import load_dotenv
 import os, json
 
-from app.line_api import reply_message, get_user_profile, send_match_question, send_math_question, send_score_card, send_game_menu
+from app.line_api import reply_message, get_user_profile, send_match_question, send_math_question, send_proverb_question, send_score_card, send_game_menu
+from app.quiz_proverb import record_proverb_history
 from app.scores import update_or_add_user_score, reset_user_score
 from app.quiz_match import record_match_history
 from app.quiz_math import record_math_history
@@ -33,8 +34,8 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 send_math_question(user_id)
             elif "เริ่มเกมทายเงาสัตว์" in text:    
                 send_match_question(user_id)
-            elif "เริ่มเกมสุภาษิต" in text:                
-                ""
+            elif "เริ่มเกมทายสุภาษิต" in text:                
+                send_proverb_question(user_id)
             else:
                 reply_message(user_id, "พิมพ์ 'เล่นเกมฝึกสมอง' เพื่อหาเกมเล่นกัน 🤖")
 
@@ -68,8 +69,10 @@ def handle_postback_event(event):
         # 🔒 บันทึกหลังตอบ
         if mode == "math":
             record_math_history(user_id, question)
-        else:
+        elif mode == "match":
             record_match_history(user_id, question)
+        elif mode == "proverb":
+            record_proverb_history(user_id, question)
 
         feedback = (
             f"✅ ถูกต้อง! คุณได้ 10 คะแนน (รวม {score} คะแนน)"
@@ -81,8 +84,10 @@ def handle_postback_event(event):
         # 🔁 ส่งคำถามถัดไป
         if mode == "math":
             send_math_question(user_id)
-        else:
+        elif mode == "match":
             send_match_question(user_id)
+        elif mode == "proverb":
+            send_proverb_question(user_id)
 
     except Exception as e:
         print(f"⚠️ ERROR handling postback: {e}")
