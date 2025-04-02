@@ -21,7 +21,6 @@ client = gspread.authorize(creds)
 def is_cache_expired(filepath, ttl_seconds=300):
     return not os.path.exists(filepath) or (time.time() - os.path.getmtime(filepath)) > ttl_seconds
 
-# === 📥 โหลดคำถามจาก cache (หรือ Google Sheet ถ้าไม่มี) ===
 def load_questions(topic, use_cache=True):
     cache_path = os.path.join(CACHE_FOLDER, f"{topic}_questions.json")
 
@@ -47,7 +46,6 @@ def load_questions(topic, use_cache=True):
         question_id = f"{topic}_{idx+1}"
         question_text = str(row.get("question", "")).strip()
         image_url = convert_drive_link(row.get("image_url", ""))
-
         choices = [
             str(value).strip()
             for key, value in row.items()
@@ -85,7 +83,36 @@ def record_question_history(user_id, question_id, topic):
     sheet.append_row([str(user_id), str(question_id)])
 
 def get_unanswered_question(user_id, topic):
-    all_questions = load_questions(topic)
+    selected_ids = get_user_question_set(user_id, topic)
     answered_ids = get_answered_questions(user_id, topic)
-    available = [q for q in all_questions if q["id"] not in answered_ids]
+
+    unanswered_ids = [qid for qid in selected_ids if qid not in answered_ids]
+    if not unanswered_ids:
+        return None
+
+    # โหลดคำถามจาก cache แล้วแมตช์ตาม id
+    all_questions = load_questions(topic)
+    question_lookup = {q["id"]: q for q in all_questions}
+
+    # เลือกจากเฉพาะ id ที่ยังไม่ได้ตอบ
+    available = [question_lookup[qid] for qid in unanswered_ids if qid in question_lookup]
     return random.choice(available) if available else None
+
+
+def get_user_question_set(user_id, topic):
+    path = os.path.join(CACHE_FOLDER, f"{user_id}_{topic}_set.json")
+
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    # ถ้ายังไม่เคยสุ่ม → สุ่มใหม่ 10 ข้อ
+    all_questions = load_questions(topic)
+    question_ids = [q["id"] for q in all_questions]
+    selected_ids = random.sample(question_ids, min(10, len(question_ids)))
+
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(selected_ids, f, ensure_ascii=False)
+
+    return selected_ids
+
