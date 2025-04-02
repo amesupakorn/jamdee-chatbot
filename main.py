@@ -4,7 +4,7 @@ import os, json
 
 from app.line_api import reply_message, get_user_profile, send_question, send_score_card, send_game_menu
 from app.scores import update_or_add_user_score, reset_user_score
-from app.quiz import record_question_history
+from app.quiz import get_answered_questions, record_question_history
 
 load_dotenv()
 app = FastAPI()
@@ -43,10 +43,17 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
 
     return {"status": "ok"}
 
+processing_users = {}
 
 def handle_postback_event(event):
+    user_id = event["source"]["userId"]
+
+    if processing_users.get(user_id):
+        print("⏳ กำลังประมวลผลคำตอบก่อนหน้า")
+        return
     try:
-        user_id = event["source"]["userId"]
+        processing_users[user_id] = True
+        
         profile = get_user_profile(user_id)
         name = profile.get("displayName", "ผู้ใช้")
 
@@ -55,22 +62,27 @@ def handle_postback_event(event):
 
         answer = params.get("answer")
         correct = params.get("correct")
-        question = params.get("question")
+        question_id = params.get("question")
         mode = params.get("mode", "quiz")
 
-        if None in [answer, correct, question]:
+        if None in [answer, correct, question_id]:
             raise ValueError("Missing data in postback")
+
+        answered = get_answered_questions(user_id, mode)
+        if question_id in answered:
+            reply_message(user_id, "⛔️ คุณได้ตอบคำถามนี้ไปแล้ว")
+            return
 
         is_correct = answer.strip() == correct.strip()
         score = update_or_add_user_score(user_id, name, is_correct)
 
         # 🔒 บันทึกหลังตอบ
         if mode == "math":
-            record_question_history(user_id, question, topic="math")
+            record_question_history(user_id, question_id, "math")
         elif mode == "match":
-            record_question_history(user_id, question, topic="match")
+            record_question_history(user_id, question_id, "match")
         elif mode == "proverb":
-            record_question_history(user_id, question, topic="proverb")
+            record_question_history(user_id, question_id, "proverb")
 
         feedback = (
             f"✅ ถูกต้อง! คุณได้ 10 คะแนน (รวม {score} คะแนน)"
@@ -88,3 +100,5 @@ def handle_postback_event(event):
 
     except Exception as e:
         print(f"⚠️ ERROR handling postback: {e}")
+    finally:
+            processing_users[user_id] = False

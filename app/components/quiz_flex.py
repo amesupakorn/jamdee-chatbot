@@ -15,7 +15,7 @@ def generate_quiz_flex(question_data, header_title="🧠 คำถามแส�
             "action": {
                 "type": "postback", 
                 "label": c,
-                "data": f"answer={c}|correct={question_data['answer']}|question={question_data['question']}|mode={question_data.get('mode', 'quiz')}"     
+                "data": f"answer={c}|correct={question_data['answer']}|question={question_data['id']}|mode={question_data.get('mode', 'quiz')}"     
             },
             "style": "primary",
             "color": "#FF6A4B",

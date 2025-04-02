@@ -15,7 +15,7 @@ def get_user_score(user_id):
     rows = sheet.get_all_records()
     for i, row in enumerate(rows):
         if row.get("userId") == user_id:
-            return i + 2, row  # +2 เพราะหัวตารางนับเป็น row 1
+            return i + 2, row 
     return None, None
 
 def get_user_score_sum(user_id):
@@ -27,7 +27,7 @@ def get_user_score_sum(user_id):
 
 def update_or_add_user_score(user_id, name, is_correct):
     row_index, existing_row = get_user_score(user_id)
-    score = 10 if is_correct else 0
+    score = 1 if is_correct else 0
 
     if existing_row:
         new_score = int(existing_row["score"]) + score
@@ -42,6 +42,6 @@ def reset_user_score(user_id):
     rows = sheet.get_all_records()
     for i, row in enumerate(rows):
         if row.get("userId") == user_id:
-            sheet.update_cell(i + 2, 3, 0)  # column 3 คือคะแนน
+            sheet.update_cell(i + 2, 3, 0) 
             break
 
