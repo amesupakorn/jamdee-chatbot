@@ -51,7 +51,7 @@ def generate_quiz_flex(question_data, header_title="🧠 คำถามแส�
                 "url": question_data.get("image_url", "https://i.imgur.com/UePbdph.png"),
                 "size": "full",
                 "aspectRatio": "20:13",
-                "aspectMode": "cover"
+                "aspectMode": "fit"
             },
             "body": {
                 "type": "box",
