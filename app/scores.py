@@ -2,13 +2,18 @@ from dotenv import load_dotenv
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
+import json
+
 
 load_dotenv()
 GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
 
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("google-credentials.json", scope)
+google_json = os.getenv("GOOGLE_SERVICE_JSON")
+creds_dict = json.loads(google_json)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
+
 sheet = client.open_by_key(GOOGLE_SHEET_ID).worksheet("scores")
 
 def get_user_score(user_id):
