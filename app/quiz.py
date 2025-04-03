@@ -6,6 +6,7 @@ import random
 from dotenv import load_dotenv
 from oauth2client.service_account import ServiceAccountCredentials
 from app.components.convert_image import convert_drive_link
+import json
 
 load_dotenv()
 
