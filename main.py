@@ -23,12 +23,12 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
             text = event["message"]["text"].lower()
             start_loading_animation(user_id)
 
-            if "รีเซต" in text:
-                reset_user_score(user_id)
-                reply_message(user_id, "✅ คุณได้รีเซตคะแนนแล้วครับ ✨")       
-            elif text == "ดูคะแนน":
+            # if "รีเซต" in text:
+            #     reset_user_score(user_id)
+            #     reply_message(user_id, "✅ คุณได้รีเซตคะแนนแล้วครับ ✨")       
+            if text == "ดูคะแนน":
                 send_score_card(user_id)
-            elif "เล่นเกมฝึกสมองง!" in text:
+            elif "เล่นเกมฝึกสมองง!" in text or "เล่นเกมฝึกสมอง" in text:
                 send_game_menu(user_id)
             elif "เริ่มเกมคณิตศาสตร์" in text:
                 send_question(user_id, key="math")
@@ -36,10 +36,7 @@ async def webhook(request: Request, background_tasks: BackgroundTasks):
                 send_question(user_id, key="match")
             elif "เริ่มเกมทายสุภาษิต" in text:                
                 send_question(user_id, key="proverb")
-            else:
-                reply_message(user_id, "พิมพ์ 'เล่นเกมฝึกสมองง!' เพื่อหาเกมเล่นกัน 🤖")
 
-        # ✅ ส่วนนี้ทำให้เร็วขึ้นด้วย background task
         elif event["type"] == "postback":
             background_tasks.add_task(handle_postback_event, event)
 
