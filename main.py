@@ -32,7 +32,7 @@ async def webhook(bot_id: str, request: Request, background_tasks: BackgroundTas
 
             if text == "ดูคะแนน":
                 send_score_card(user_id, token)
-            elif "เล่นเกม" in text:
+            elif "เล่นเกม" in text or "เล่นเกมฝึกสมองง!" in text or "เล่นเกมฝึกสมอง" in text:
                 send_game_menu(user_id, token)
             elif "เริ่มเกมคณิตศาสตร์" in text:
                 send_question(user_id, key="math", token=token)
@@ -58,7 +58,7 @@ def handle_postback_event(event, token):
         processing_users[user_id] = True
         start_loading_animation(user_id, token=token)
 
-        profile = get_user_profile(user_id, token)
+        profile = get_user_profile(user_id, token=token)
         name = profile.get("displayName", "ผู้ใช้")
 
         data = event["postback"]["data"]

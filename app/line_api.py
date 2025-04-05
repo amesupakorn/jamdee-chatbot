@@ -75,7 +75,7 @@ def send_game_menu(user_id, token):
 
 
 def send_score_card(user_id, token):
-    profile = get_user_profile(user_id)
+    profile = get_user_profile(user_id, token=token)
     display_name = profile.get("displayName", "คุณผู้ใช้")
     picture_url = profile.get("pictureUrl", "https://i.imgur.com/UePbdph.png")  # fallback
     score = get_user_score_sum(user_id)
@@ -183,7 +183,7 @@ topic_title_map = {
 }
 
 def send_question(user_id, key, token):
-    profile = get_user_profile(user_id)
+    profile = get_user_profile(user_id, token=token)
     display_name = profile.get("displayName", "ผู้ใช้")
     picture_url = profile.get("pictureUrl", "https://i.imgur.com/UePbdph.png")  # fallback รูปสำรอง
     question = get_unanswered_question(user_id, topic=key)
