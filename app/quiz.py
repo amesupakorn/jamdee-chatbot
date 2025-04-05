@@ -15,9 +15,8 @@ CACHE_FOLDER = "cache"
 os.makedirs(CACHE_FOLDER, exist_ok=True)
 
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-google_json = os.getenv("GOOGLE_SERVICE_JSON")
-creds_dict = json.loads(google_json)
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+google_json_path = os.getenv("GOOGLE_JSON_PATH")
+creds = ServiceAccountCredentials.from_json_keyfile_name(google_json_path, scope)
 client = gspread.authorize(creds)
 
 # === 🔁 Cache utility ===

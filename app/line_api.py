@@ -65,7 +65,7 @@ def send_game_menu(user_id, token):
         "https://api.line.me/v2/bot/message/push",
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer " + token
+            "Authorization": f"Bearer {token}"
         },
         data=json.dumps({
             "to": user_id,
