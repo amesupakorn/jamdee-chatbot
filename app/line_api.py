@@ -9,21 +9,18 @@ from app.quiz import get_unanswered_question
 from app.scores import get_user_score, get_user_score_sum, update_or_add_user_score
 from app.components.quiz_flex import generate_quiz_flex
 
-load_dotenv()
-LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
-
 
 import requests
 
-def start_loading_animation(user_id, seconds=5):
+def start_loading_animation(user_id, token):
     url = "https://api.line.me/v2/bot/chat/loading/start"
     headers = {
-        "Authorization": f"Bearer {LINE_ACCESS_TOKEN}",
+        "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
     data = {
         "chatId": user_id,
-        "loadingSeconds": min(seconds, 10) 
+        "loadingSeconds": min(5, 10) 
     }
 
     try:
@@ -34,11 +31,11 @@ def start_loading_animation(user_id, seconds=5):
         print(f"❌ Error starting loading animation: {e}")
         return {"error": str(e)}
 
-def reply_message(user_id, message):
+def reply_message(user_id, message, token):
     url = "https://api.line.me/v2/bot/message/push"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {LINE_ACCESS_TOKEN}"
+        "Authorization": f"Bearer {token}"
     }
     data = {
         "to": user_id,
@@ -50,10 +47,10 @@ def reply_message(user_id, message):
 
 
 
-def get_user_profile(user_id):
+def get_user_profile(user_id, token):
     url = f"https://api.line.me/v2/bot/profile/{user_id}"
     headers = {
-        "Authorization": f"Bearer {LINE_ACCESS_TOKEN}"
+        "Authorization": f"Bearer {token}"
     }
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
@@ -61,14 +58,14 @@ def get_user_profile(user_id):
     else:
         return {}
     
-def send_game_menu(user_id):
+def send_game_menu(user_id, token):
     flex = load_game_menu_from_sheet()
 
     requests.post(
         "https://api.line.me/v2/bot/message/push",
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer " + LINE_ACCESS_TOKEN
+            "Authorization": f"Bearer " + token
         },
         data=json.dumps({
             "to": user_id,
@@ -77,7 +74,7 @@ def send_game_menu(user_id):
     )
 
 
-def send_score_card(user_id):
+def send_score_card(user_id, token):
     profile = get_user_profile(user_id)
     display_name = profile.get("displayName", "คุณผู้ใช้")
     picture_url = profile.get("pictureUrl", "https://i.imgur.com/UePbdph.png")  # fallback
@@ -171,14 +168,13 @@ def send_score_card(user_id):
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {LINE_ACCESS_TOKEN}"
+        "Authorization": f"Bearer {token}"
     }
     data = {
         "to": user_id,
         "messages": [flex]
     }
     requests.post("https://api.line.me/v2/bot/message/push", headers=headers, data=json.dumps(data))
-    
 
 topic_title_map = {
     "math": "➕ เกมคณิตศาสตร์",
@@ -186,7 +182,7 @@ topic_title_map = {
     "proverb": "🔍 เกมทายสุภาษิต",
 }
 
-def send_question(user_id, key):
+def send_question(user_id, key, token):
     profile = get_user_profile(user_id)
     display_name = profile.get("displayName", "ผู้ใช้")
     picture_url = profile.get("pictureUrl", "https://i.imgur.com/UePbdph.png")  # fallback รูปสำรอง
@@ -196,7 +192,7 @@ def send_question(user_id, key):
         requests.post("https://api.line.me/v2/bot/message/push",
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {LINE_ACCESS_TOKEN}"
+            "Authorization": f"Bearer {token}"
         },
         data=json.dumps({
             "to": user_id,
@@ -210,6 +206,6 @@ def send_question(user_id, key):
 
     requests.post(
         "https://api.line.me/v2/bot/message/push",
-        headers={ "Authorization": f"Bearer {LINE_ACCESS_TOKEN}", "Content-Type": "application/json" },
+        headers={ "Authorization": f"Bearer {token}", "Content-Type": "application/json" },
         data=json.dumps({ "to": user_id, "messages": [flex] })
     )
