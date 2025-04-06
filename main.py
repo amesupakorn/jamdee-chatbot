@@ -37,6 +37,7 @@ def wait_until_ready_and_reply(user_id, token, text):
 
         if server_is_ready(): 
             handle_user_message(text, user_id, token)
+            return
         time.sleep(interval)
         waited += interval
     print(f"⛔️ Server ไม่ตอบภายใน {max_wait} วินาที — ไม่ส่งข้อความใด ๆ")
