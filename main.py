@@ -72,7 +72,7 @@ def handle_postback_event(event, token):
         if None in [answer, correct, question_id]:
             raise ValueError("Missing data in postback")
 
-        answered = get_answered_questions(user_id, mode, token)
+        answered = get_answered_questions(user_id, mode)
         if question_id in answered:
             reply_message(user_id, "⛔️ คุณได้ตอบคำถามนี้ไปแล้ว", token=token)
             return
